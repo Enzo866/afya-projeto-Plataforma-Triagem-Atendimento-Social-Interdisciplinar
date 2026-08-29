@@ -60,6 +60,10 @@ fun TriagemScreen() {
         mutableStateOf("")
     }
 
+    var resultado by rememberSaveable {
+        mutableStateOf("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -194,6 +198,37 @@ fun TriagemScreen() {
             Text(
                 text = "Área selecionada = $especialidade",
                 style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        //Botão da triagem
+        Button(
+            onClick = {
+
+                resultado = if (
+                    nome.isBlank() ||
+                    idade.isBlank() ||
+                    especialidade.isBlank()
+                ) {
+
+                    "Preencha todos os campos antes de continuar."
+
+                } else {
+
+                    "Triagem realizada. Atendimento indicado: $especialidade"
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text("Realizar Triagem")
+        }
+
+        //Exibir resultado
+        if (resultado.isNotEmpty()) {
+
+            Text(
+                text = resultado
             )
         }
     }

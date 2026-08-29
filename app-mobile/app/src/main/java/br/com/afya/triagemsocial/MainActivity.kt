@@ -135,6 +135,7 @@ fun TriagemScreen() {
         )
 
         //Linhas de especialidades
+        //Primeira Linha
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -161,7 +162,7 @@ fun TriagemScreen() {
             modifier = Modifier.height(8.dp)
         )
 
-        // Segunda linha de especialidades
+        // Segunda linha
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -182,6 +183,18 @@ fun TriagemScreen() {
             ) {
                 Text("Farmácia")
             }
+        }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        //Especialidade Selecionada
+        if (especialidade.isNotEmpty()){
+            Text(
+                text = "Área selecionada = $especialidade",
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

@@ -87,4 +87,4 @@ Essa organização utiliza o conceito de State Hoisting e fluxo unidirecional de
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/Enzo866/afya-projeto-Plataforma-Triagem-Atendimento-Social-Interdisciplinar/blob/main/app-mobile/app/src/main/java/br/com/afya/triagemsocial/MainActivity.kt
+git clone https://github.com/Enzo866/afya-projeto-Plataforma-Triagem-Atendimento-Social-Interdisciplinar

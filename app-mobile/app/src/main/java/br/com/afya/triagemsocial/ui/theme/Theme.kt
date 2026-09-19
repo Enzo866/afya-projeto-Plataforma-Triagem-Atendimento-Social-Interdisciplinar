@@ -9,45 +9,65 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
 
+    // Cor principal Afya
     primary = AfyaPink,
     onPrimary = Color.White,
 
+    // Destaques principais
     primaryContainer = AfyaPinkDark,
     onPrimaryContainer = Color.White,
 
+    // Cards destacados
+    secondaryContainer = AfyaDarkCard,
+    onSecondaryContainer = AfyaDarkText,
+
+    // Fundo
     background = AfyaDarkBackground,
     onBackground = AfyaDarkText,
 
+    // Superfícies
     surface = AfyaDarkSurface,
     onSurface = AfyaDarkText,
 
     surfaceVariant = AfyaDarkSurfaceVariant,
     onSurfaceVariant = AfyaDarkTextSecondary,
 
+    // Bordas
     outline = AfyaDarkBorder,
 
+    // Erros
     error = StatusError
 )
 
 private val LightColorScheme = lightColorScheme(
 
+    // Cor principal Afya
     primary = AfyaPink,
     onPrimary = Color.White,
 
+    // Destaques principais
     primaryContainer = AfyaPinkLight,
     onPrimaryContainer = AfyaPinkDark,
 
+    // Cards destacados
+    secondaryContainer = AfyaLightCard,
+    onSecondaryContainer = AfyaLightText,
+
+    // Fundo
     background = AfyaLightBackground,
     onBackground = AfyaLightText,
 
+    // Superfícies
     surface = AfyaLightSurface,
     onSurface = AfyaLightText,
 
     surfaceVariant = AfyaLightSurfaceVariant,
     onSurfaceVariant = AfyaLightTextSecondary,
 
+    // Bordas
     outline = AfyaLightBorder,
 
+    // Erros
     error = StatusError
 )
 

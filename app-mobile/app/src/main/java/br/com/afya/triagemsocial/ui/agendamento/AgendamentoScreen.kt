@@ -1,23 +1,34 @@
 package br.com.afya.triagemsocial.ui.agendamento
 
-import androidx.compose.foundation.layout.Arrangement
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import br.com.afya.triagemsocial.model.Agendamento
 import br.com.afya.triagemsocial.viewmodel.AgendamentoUiState
-import androidx.compose.material3.Surface
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import kotlin.math.abs
 
 @Composable
 fun AgendamentoScreen(
@@ -29,56 +40,165 @@ fun AgendamentoScreen(
     onConfirmar: () -> Unit,
     onVoltar: () -> Unit
 ) {
+
+    val context = LocalContext.current
+
+    var mensagemErro by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val calendarioAtual = Calendar.getInstance()
+
+    /*
+     * DATE PICKER
+     *
+     * Permite escolher qualquer data a partir de hoje.
+     */
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, ano, mes, dia ->
+
+            val dataFormatada = String.format(
+                Locale.getDefault(),
+                "%02d/%02d/%04d",
+                dia,
+                mes + 1,
+                ano
+            )
+
+            onDataSelecionada(dataFormatada)
+
+            // Limpa eventual erro anterior.
+            mensagemErro = null
+        },
+        calendarioAtual.get(Calendar.YEAR),
+        calendarioAtual.get(Calendar.MONTH),
+        calendarioAtual.get(Calendar.DAY_OF_MONTH)
+    ).apply {
+
+        // Impede selecionar dias anteriores ao dia atual.
+        datePicker.minDate =
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+    }
+
+    /*
+     * TIME PICKER
+     *
+     * Permite selecionar hora e minuto.
+     */
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, hora, minuto ->
+
+            val horarioFormatado = String.format(
+                Locale.getDefault(),
+                "%02d:%02d",
+                hora,
+                minuto
+            )
+
+            onHorarioSelecionado(horarioFormatado)
+
+            // Limpa eventual erro anterior.
+            mensagemErro = null
+        },
+        calendarioAtual.get(Calendar.HOUR_OF_DAY),
+        calendarioAtual.get(Calendar.MINUTE),
+        true
+    )
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .systemBarsPadding()
                 .padding(24.dp)
         ) {
 
             Text(
                 text = "Agendamento",
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(
                 modifier = Modifier.height(24.dp)
             )
 
+            // =============================
+            // DATA
+            // =============================
+
             Text(
-                text = "Escolha uma data:",
-                style = MaterialTheme.typography.titleMedium
+                text = "Data do atendimento",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(
                 modifier = Modifier.height(8.dp)
             )
 
-            datas.forEach { data ->
+            OutlinedButton(
+                onClick = {
+                    datePickerDialog.show()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-                OutlinedButton(
-                    onClick = {
-                        onDataSelecionada(data)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    val prefixo =
-                        if (uiState.dataSelecionada == data) {
-                            "✓ "
+                Text(
+                    text =
+                        if (uiState.dataSelecionada.isBlank()) {
+                            "Selecionar data"
                         } else {
-                            ""
+                            uiState.dataSelecionada
                         }
+                )
+            }
 
-                    Text("$prefixo$data")
-                }
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
+            // =============================
+            // HORÁRIO
+            // =============================
+
+            Text(
+                text = "Horário do atendimento",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            OutlinedButton(
+                onClick = {
+                    timePickerDialog.show()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = uiState.dataSelecionada.isNotBlank()
+            ) {
+
+                Text(
+                    text =
+                        if (uiState.horarioSelecionado.isBlank()) {
+                            "Selecionar horário"
+                        } else {
+                            uiState.horarioSelecionado
+                        }
                 )
             }
 
@@ -86,76 +206,240 @@ fun AgendamentoScreen(
                 modifier = Modifier.height(16.dp)
             )
 
+            // =============================
+            // INFORMAÇÃO SOBRE A TRAVA
+            // =============================
+
             Text(
-                text = "Escolha um horário:",
-                style = MaterialTheme.typography.titleMedium
+                text = "Cada atendimento reserva o horário por 1 hora.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(
                 modifier = Modifier.height(8.dp)
             )
 
-            horarios.chunked(3).forEach { linha ->
+            Text(
+                text =
+                    "Exemplo: um atendimento às 14:00 " +
+                            "bloqueia novos agendamentos até às 15:00.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.spacedBy(8.dp)
-                ) {
+            // =============================
+            // ERRO
+            // =============================
 
-                    linha.forEach { horario ->
-
-                        OutlinedButton(
-                            onClick = {
-                                onHorarioSelecionado(horario)
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-
-                            val prefixo =
-                                if (
-                                    uiState.horarioSelecionado ==
-                                    horario
-                                ) {
-                                    "✓ "
-                                } else {
-                                    ""
-                                }
-
-                            Text("$prefixo$horario")
-                        }
-                    }
-                }
+            if (mensagemErro != null) {
 
                 Spacer(
-                    modifier = Modifier.height(8.dp)
+                    modifier = Modifier.height(16.dp)
+                )
+
+                Text(
+                    text = mensagemErro!!,
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.weight(1f)
             )
 
+            // =============================
+            // CONFIRMAR
+            // =============================
+
             Button(
-                onClick = onConfirmar,
+                onClick = {
+
+                    val data = uiState.dataSelecionada
+                    val horario = uiState.horarioSelecionado
+
+                    when {
+
+                        data.isBlank() -> {
+
+                            mensagemErro =
+                                "Selecione uma data para o atendimento."
+                        }
+
+                        horario.isBlank() -> {
+
+                            mensagemErro =
+                                "Selecione um horário para o atendimento."
+                        }
+
+                        horarioNoPassado(
+                            data = data,
+                            horario = horario
+                        ) -> {
+
+                            mensagemErro =
+                                "Não é possível agendar um atendimento no passado."
+                        }
+
+                        existeConflitoDeHorario(
+                            novaData = data,
+                            novoHorario = horario,
+                            agendamentos =
+                                uiState.agendamentos
+                        ) -> {
+
+                            mensagemErro =
+                                "Esse horário não está disponível. " +
+                                        "Existe outro atendimento dentro " +
+                                        "do intervalo de 1 hora."
+                        }
+
+                        else -> {
+
+                            mensagemErro = null
+
+                            onConfirmar()
+                        }
+                    }
+                },
+
                 enabled =
                     uiState.dataSelecionada.isNotBlank() &&
                             uiState.horarioSelecionado.isNotBlank(),
+
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Confirmar Agendamento")
+
+                Text(
+                    text = "Confirmar Agendamento"
+                )
             }
 
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             OutlinedButton(
                 onClick = onVoltar,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Voltar")
+
+                Text(
+                    text = "Voltar"
+                )
             }
         }
+    }
+}
+
+/*
+ * Verifica se o novo horário entra em conflito
+ * com algum atendimento existente.
+ *
+ * Cada atendimento ocupa 60 minutos.
+ *
+ */
+private fun existeConflitoDeHorario(
+    novaData: String,
+    novoHorario: String,
+    agendamentos: List<Agendamento>
+): Boolean {
+
+    val novoInicio =
+        converterParaMillis(
+            data = novaData,
+            horario = novoHorario
+        ) ?: return true
+
+    val umaHoraEmMillis =
+        60 * 60 * 1000L
+
+    return agendamentos.any { agendamento ->
+
+        /*
+         * Agendamentos cancelados não bloqueiam horário.
+         *
+         * Usamos status.name para não depender do nome
+         * exato da classe do enum atual do projeto.
+         */
+        if (
+            agendamento.status.name.equals(
+                "CANCELADO",
+                ignoreCase = true
+            )
+        ) {
+            return@any false
+        }
+
+        val inicioExistente =
+            converterParaMillis(
+                data = agendamento.data,
+                horario = agendamento.horario
+            ) ?: return@any false
+
+        /*
+         * Calcula a diferença entre o horário novo
+         * e o horário já agendado.
+         */
+        val diferenca =
+            abs(
+                novoInicio -
+                        inicioExistente
+            )
+
+        /*
+         * Menos de 60 minutos significa conflito.
+         */
+        diferenca < umaHoraEmMillis
+    }
+}
+
+/*
+ * Impede agendamento em data/horário anterior
+ * ao momento atual.
+ */
+private fun horarioNoPassado(
+    data: String,
+    horario: String
+): Boolean {
+
+    val horarioSelecionado =
+        converterParaMillis(
+            data = data,
+            horario = horario
+        ) ?: return true
+
+    return horarioSelecionado <
+            System.currentTimeMillis()
+}
+
+/*
+ * Converte para milissegundos.
+ */
+private fun converterParaMillis(
+    data: String,
+    horario: String
+): Long? {
+
+    return try {
+
+        val formato =
+            SimpleDateFormat(
+                "dd/MM/yyyy HH:mm",
+                Locale.getDefault()
+            )
+
+        formato.isLenient = false
+
+        formato.parse(
+            "$data $horario"
+        )?.time
+
+    } catch (
+        exception: Exception
+    ) {
+
+        null
     }
 }

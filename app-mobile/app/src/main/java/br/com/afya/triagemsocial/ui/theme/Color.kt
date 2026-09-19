@@ -2,10 +2,43 @@ package br.com.afya.triagemsocial.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// =============================
+// CORES PRINCIPAIS AFYA
+// =============================
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val AfyaPink = Color(0xFFCE0058)
+val AfyaPinkDark = Color(0xFFA80048)
+val AfyaPinkLight = Color(0xFFFFD8E7)
+
+// =============================
+// TEMA CLARO
+// =============================
+
+val AfyaLightBackground = Color(0xFFFFF8FA)
+val AfyaLightSurface = Color(0xFFFFFFFF)
+
+val AfyaLightText = Color(0xFF211A1D)
+val AfyaLightTextSecondary = Color(0xFF6E5F64)
+
+val AfyaLightBorder = Color(0xFFE4D7DB)
+
+// =============================
+// TEMA ESCURO
+// =============================
+
+val AfyaDarkBackground = Color(0xFF181113)
+val AfyaDarkSurface = Color(0xFF231B1E)
+
+val AfyaDarkText = Color(0xFFFFE8EF)
+val AfyaDarkTextSecondary = Color(0xFFD8C2C8)
+
+val AfyaDarkBorder = Color(0xFF554348)
+
+// =============================
+// STATUS
+// =============================
+
+val StatusSuccess = Color(0xFF2E7D32)
+val StatusWarning = Color(0xFFF9A825)
+val StatusError = Color(0xFFB3261E)
+val StatusInfo = Color(0xFF1565C0)

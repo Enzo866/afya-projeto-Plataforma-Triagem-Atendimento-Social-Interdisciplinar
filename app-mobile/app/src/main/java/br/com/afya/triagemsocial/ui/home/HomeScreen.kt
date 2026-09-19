@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Surface
 
 @Composable
 fun HomeScreen(
@@ -23,91 +24,95 @@ fun HomeScreen(
     onMeusAtendimentos: () -> Unit,
     onAcessoProfissional: () -> Unit
 ) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-
-        Text(
-            text = "AFYA CONECTA",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "Plataforma Integrada de Triagem e Agendamento de Atendimentos",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
         ) {
 
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Text(
+                text = "AFYA CONECTA",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = "Plataforma Integrada de Triagem e Agendamento de Atendimentos",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
 
-                Text(
-                    text = "Atendimentos disponíveis",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
+                    Text(
+                        text = "Atendimentos disponíveis",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                Text(
-                    text = "Psicologia • Fisioterapia • Farmácia • Direito"
-                )
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    Text(
+                        text = "Psicologia • Fisioterapia • Farmácia • Direito"
+                    )
+                }
             }
-        }
 
-        Spacer(
-            modifier = Modifier.height(32.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(32.dp)
+            )
 
-        Button(
-            onClick = onIniciarTriagem,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Iniciar Triagem")
-        }
+            Button(
+                onClick = onIniciarTriagem,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Iniciar Triagem")
+            }
 
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
-        OutlinedButton(
-            onClick = onMeusAtendimentos,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Meus Atendimentos")
-        }
+            OutlinedButton(
+                onClick = onMeusAtendimentos,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Meus Atendimentos")
+            }
 
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
-        OutlinedButton(
-            onClick = onAcessoProfissional,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Acesso Profissional")
+            OutlinedButton(
+                onClick = onAcessoProfissional,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Acesso Profissional")
+            }
         }
     }
 }

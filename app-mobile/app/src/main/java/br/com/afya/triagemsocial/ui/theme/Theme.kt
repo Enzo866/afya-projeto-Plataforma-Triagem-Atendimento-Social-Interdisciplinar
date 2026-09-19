@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
+
     primary = AfyaPink,
     onPrimary = Color.White,
 
@@ -20,7 +21,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = AfyaDarkSurface,
     onSurface = AfyaDarkText,
 
-    surfaceVariant = AfyaDarkSurface,
+    surfaceVariant = AfyaDarkSurfaceVariant,
     onSurfaceVariant = AfyaDarkTextSecondary,
 
     outline = AfyaDarkBorder,
@@ -29,6 +30,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
+
     primary = AfyaPink,
     onPrimary = Color.White,
 
@@ -41,7 +43,7 @@ private val LightColorScheme = lightColorScheme(
     surface = AfyaLightSurface,
     onSurface = AfyaLightText,
 
-    surfaceVariant = AfyaLightSurface,
+    surfaceVariant = AfyaLightSurfaceVariant,
     onSurfaceVariant = AfyaLightTextSecondary,
 
     outline = AfyaLightBorder,
@@ -54,6 +56,7 @@ fun TriagemSocialTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+
     val colorScheme = if (darkTheme) {
         DarkColorScheme
     } else {

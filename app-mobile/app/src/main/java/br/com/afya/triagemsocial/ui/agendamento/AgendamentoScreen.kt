@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.afya.triagemsocial.viewmodel.AgendamentoUiState
+import androidx.compose.material3.Surface
 
 @Composable
 fun AgendamentoScreen(
@@ -28,129 +29,133 @@ fun AgendamentoScreen(
     onConfirmar: () -> Unit,
     onVoltar: () -> Unit
 ) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
 
-        Text(
-            text = "Agendamento",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
+            Text(
+                text = "Agendamento",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
-        Text(
-            text = "Escolha uma data:",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        datas.forEach { data ->
-
-            OutlinedButton(
-                onClick = {
-                    onDataSelecionada(data)
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                val prefixo =
-                    if (uiState.dataSelecionada == data) {
-                        "✓ "
-                    } else {
-                        ""
-                    }
-
-                Text("$prefixo$data")
-            }
+            Text(
+                text = "Escolha uma data:",
+                style = MaterialTheme.typography.titleMedium
+            )
 
             Spacer(
                 modifier = Modifier.height(8.dp)
             )
-        }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+            datas.forEach { data ->
 
-        Text(
-            text = "Escolha um horário:",
-            style = MaterialTheme.typography.titleMedium
-        )
+                OutlinedButton(
+                    onClick = {
+                        onDataSelecionada(data)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+                    val prefixo =
+                        if (uiState.dataSelecionada == data) {
+                            "✓ "
+                        } else {
+                            ""
+                        }
 
-        horarios.chunked(3).forEach { linha ->
+                    Text("$prefixo$data")
+                }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp)
-            ) {
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+            }
 
-                linha.forEach { horario ->
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
-                    OutlinedButton(
-                        onClick = {
-                            onHorarioSelecionado(horario)
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
+            Text(
+                text = "Escolha um horário:",
+                style = MaterialTheme.typography.titleMedium
+            )
 
-                        val prefixo =
-                            if (
-                                uiState.horarioSelecionado ==
-                                horario
-                            ) {
-                                "✓ "
-                            } else {
-                                ""
-                            }
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
-                        Text("$prefixo$horario")
+            horarios.chunked(3).forEach { linha ->
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
+
+                    linha.forEach { horario ->
+
+                        OutlinedButton(
+                            onClick = {
+                                onHorarioSelecionado(horario)
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+
+                            val prefixo =
+                                if (
+                                    uiState.horarioSelecionado ==
+                                    horario
+                                ) {
+                                    "✓ "
+                                } else {
+                                    ""
+                                }
+
+                            Text("$prefixo$horario")
+                        }
                     }
                 }
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+
+            Button(
+                onClick = onConfirmar,
+                enabled =
+                    uiState.dataSelecionada.isNotBlank() &&
+                            uiState.horarioSelecionado.isNotBlank(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Confirmar Agendamento")
             }
 
             Spacer(
                 modifier = Modifier.height(8.dp)
             )
-        }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-
-        Button(
-            onClick = onConfirmar,
-            enabled =
-                uiState.dataSelecionada.isNotBlank() &&
-                        uiState.horarioSelecionado.isNotBlank(),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Confirmar Agendamento")
-        }
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        OutlinedButton(
-            onClick = onVoltar,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Voltar")
+            OutlinedButton(
+                onClick = onVoltar,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Voltar")
+            }
         }
     }
 }

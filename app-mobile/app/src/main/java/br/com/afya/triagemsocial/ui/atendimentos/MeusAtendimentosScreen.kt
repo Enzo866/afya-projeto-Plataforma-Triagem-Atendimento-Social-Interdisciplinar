@@ -19,93 +19,98 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.afya.triagemsocial.model.Agendamento
+import androidx.compose.material3.Surface
 
 @Composable
 fun MeusAtendimentosScreen(
     agendamentos: List<Agendamento>,
     onVoltar: () -> Unit
 ) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-
-        Text(
-            text = "Meus Atendimentos",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        if (agendamentos.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
 
             Text(
-                text = "Nenhum atendimento agendado."
+                text = "Meus Atendimentos",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
             )
 
-        } else {
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
-            LazyColumn(
-                modifier = Modifier.weight(1f)
-            ) {
+            if (agendamentos.isEmpty()) {
 
-                items(agendamentos) { agendamento ->
+                Text(
+                    text = "Nenhum atendimento agendado."
+                )
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor =
-                                MaterialTheme
-                                    .colorScheme
-                                    .surfaceVariant
-                        )
-                    ) {
+            } else {
 
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+
+                    items(agendamentos) { agendamento ->
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .surfaceVariant
+                            )
                         ) {
 
-                            Text(
-                                text =
-                                    agendamento
-                                        .especialidade
-                                        .nomeExibicao,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
 
-                            Text(
-                                text =
-                                    "${agendamento.data} - " +
-                                            agendamento.horario
-                            )
+                                Text(
+                                    text =
+                                        agendamento
+                                            .especialidade
+                                            .nomeExibicao,
+                                    fontWeight = FontWeight.Bold
+                                )
 
-                            Text(
-                                text =
-                                    "Status: " +
-                                            agendamento.status.name
-                            )
+                                Text(
+                                    text =
+                                        "${agendamento.data} - " +
+                                                agendamento.horario
+                                )
+
+                                Text(
+                                    text =
+                                        "Status: " +
+                                                agendamento.status.name
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
-        OutlinedButton(
-            onClick = onVoltar,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Voltar")
+            OutlinedButton(
+                onClick = onVoltar,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Voltar")
+            }
         }
     }
 }

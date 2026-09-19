@@ -1,4 +1,5 @@
-package br.com.afya.triagemsocial.ui.home
+
+package br.com.afya.triagemsocial.ui.resultado
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,12 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import br.com.afya.triagemsocial.model.Especialidade
 
 @Composable
-fun HomeScreen(
-    onIniciarTriagem: () -> Unit,
-    onMeusAtendimentos: () -> Unit,
-    onAcessoProfissional: () -> Unit
+fun ResultadoScreen(
+    especialidade: Especialidade,
+    onAgendar: () -> Unit,
+    onVoltar: () -> Unit
 ) {
 
     Column(
@@ -31,19 +33,9 @@ fun HomeScreen(
     ) {
 
         Text(
-            text = "AFYA CONECTA",
+            text = "Resultado da Triagem",
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "Plataforma Integrada de Triagem e Agendamento de Atendimentos",
-            style = MaterialTheme.typography.titleMedium
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(
@@ -53,18 +45,18 @@ fun HomeScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor =
+                    MaterialTheme.colorScheme.primaryContainer
             )
         ) {
 
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(20.dp)
             ) {
 
                 Text(
-                    text = "Atendimentos disponíveis",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text = "Área selecionada",
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 Spacer(
@@ -72,20 +64,31 @@ fun HomeScreen(
                 )
 
                 Text(
-                    text = "Psicologia • Fisioterapia • Farmácia • Direito"
+                    text = especialidade.nomeExibicao,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        Text(
+            text =
+                "Você pode continuar para escolher uma data e horário disponíveis."
+        )
 
         Spacer(
             modifier = Modifier.height(32.dp)
         )
 
         Button(
-            onClick = onIniciarTriagem,
+            onClick = onAgendar,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Iniciar Triagem")
+            Text("Escolher Horário")
         }
 
         Spacer(
@@ -93,21 +96,10 @@ fun HomeScreen(
         )
 
         OutlinedButton(
-            onClick = onMeusAtendimentos,
+            onClick = onVoltar,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Meus Atendimentos")
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        OutlinedButton(
-            onClick = onAcessoProfissional,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Acesso Profissional")
+            Text("Voltar")
         }
     }
 }

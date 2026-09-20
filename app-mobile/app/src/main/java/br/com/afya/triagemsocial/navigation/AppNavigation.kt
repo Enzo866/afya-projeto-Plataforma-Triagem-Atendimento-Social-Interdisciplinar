@@ -20,18 +20,22 @@ import br.com.afya.triagemsocial.viewmodel.TriagemViewModel
 fun AppNavigation(
     navController: NavHostController =
         rememberNavController(),
+
     triagemViewModel: TriagemViewModel =
         viewModel(),
+
     agendamentoViewModel: AgendamentoViewModel =
         viewModel()
 ) {
 
     val triagemState by
-    triagemViewModel.uiState
+    triagemViewModel
+        .uiState
         .collectAsStateWithLifecycle()
 
     val agendamentoState by
-    agendamentoViewModel.uiState
+    agendamentoViewModel
+        .uiState
         .collectAsStateWithLifecycle()
 
     NavHost(
@@ -42,8 +46,11 @@ fun AppNavigation(
         composable("home") {
 
             HomeScreen(
+
                 onIniciarTriagem = {
-                    navController.navigate("triagem")
+                    navController.navigate(
+                        "triagem"
+                    )
                 },
 
                 onMeusAtendimentos = {
@@ -53,8 +60,8 @@ fun AppNavigation(
                 },
 
                 onAcessoProfissional = {
-                    // Tela profissional será adicionada
-                    // em uma próxima etapa.
+                    // Tela profissional será
+                    // adicionada futuramente.
                 }
             )
         }
@@ -62,19 +69,28 @@ fun AppNavigation(
         composable("triagem") {
 
             TriagemScreen(
+
                 uiState = triagemState,
 
                 onNomeChange =
-                    triagemViewModel::onNomeChange,
+                    triagemViewModel::
+                    onNomeChange,
 
                 onIdadeChange =
-                    triagemViewModel::onIdadeChange,
+                    triagemViewModel::
+                    onIdadeChange,
 
                 onCpfChange =
-                    triagemViewModel::onCpfChange,
+                    triagemViewModel::
+                    onCpfChange,
+
+                onTelefoneChange =
+                    triagemViewModel::
+                    onTelefoneChange,
 
                 onMotivoChange =
-                    triagemViewModel::onMotivoChange,
+                    triagemViewModel::
+                    onMotivoChange,
 
                 onEspecialidadeChange =
                     triagemViewModel::
@@ -86,6 +102,7 @@ fun AppNavigation(
                         triagemViewModel
                             .validarTriagem()
                     ) {
+
                         navController.navigate(
                             "resultado"
                         )
@@ -99,10 +116,14 @@ fun AppNavigation(
             val especialidade =
                 triagemState.especialidade
 
-            if (especialidade != null) {
+            if (
+                especialidade != null
+            ) {
 
                 ResultadoScreen(
-                    especialidade = especialidade,
+
+                    especialidade =
+                        especialidade,
 
                     onAgendar = {
                         navController.navigate(
@@ -111,7 +132,8 @@ fun AppNavigation(
                     },
 
                     onVoltar = {
-                        navController.popBackStack()
+                        navController
+                            .popBackStack()
                     }
                 )
             }
@@ -120,7 +142,9 @@ fun AppNavigation(
         composable("agendamento") {
 
             AgendamentoScreen(
-                uiState = agendamentoState,
+
+                uiState =
+                    agendamentoState,
 
                 datas =
                     agendamentoViewModel
@@ -141,17 +165,25 @@ fun AppNavigation(
                 onConfirmar = {
 
                     val especialidade =
-                        triagemState.especialidade
+                        triagemState
+                            .especialidade
 
-                    if (especialidade != null) {
+                    if (
+                        especialidade != null
+                    ) {
 
                         val sucesso =
                             agendamentoViewModel
                                 .confirmarAgendamento(
+
                                     nome =
-                                        triagemState.nome,
+                                        triagemState
+                                            .nome,
+
                                     cpf =
-                                        triagemState.cpf,
+                                        triagemState
+                                            .cpf,
+
                                     especialidade =
                                         especialidade
                                 )
@@ -161,26 +193,35 @@ fun AppNavigation(
                             navController.navigate(
                                 "meus_atendimentos"
                             ) {
-                                popUpTo("home")
+
+                                popUpTo(
+                                    "home"
+                                )
                             }
                         }
                     }
                 },
 
                 onVoltar = {
-                    navController.popBackStack()
+                    navController
+                        .popBackStack()
                 }
             )
         }
 
-        composable("meus_atendimentos") {
+        composable(
+            "meus_atendimentos"
+        ) {
 
             MeusAtendimentosScreen(
+
                 agendamentos =
-                    agendamentoState.agendamentos,
+                    agendamentoState
+                        .agendamentos,
 
                 onVoltar = {
-                    navController.popBackStack()
+                    navController
+                        .popBackStack()
                 }
             )
         }

@@ -38,9 +38,26 @@ class TriagemViewModel : ViewModel() {
     fun onCpfChange(cpf: String) {
         _uiState.update {
             it.copy(
-                cpf = cpf.filter { caractere ->
-                    caractere.isDigit()
-                }.take(11),
+                cpf = cpf
+                    .filter { caractere ->
+                        caractere.isDigit()
+                    }
+                    .take(11),
+
+                mensagemErro = null
+            )
+        }
+    }
+
+    fun onTelefoneChange(telefone: String) {
+        _uiState.update {
+            it.copy(
+                telefone = telefone
+                    .filter { caractere ->
+                        caractere.isDigit()
+                    }
+                    .take(11),
+
                 mensagemErro = null
             )
         }
@@ -55,7 +72,9 @@ class TriagemViewModel : ViewModel() {
         }
     }
 
-    fun onEspecialidadeChange(especialidade: Especialidade) {
+    fun onEspecialidadeChange(
+        especialidade: Especialidade
+    ) {
         _uiState.update {
             it.copy(
                 especialidade = especialidade,
@@ -68,19 +87,74 @@ class TriagemViewModel : ViewModel() {
 
         val estadoAtual = _uiState.value
 
-        if (!estadoAtual.formularioValido) {
+        if (estadoAtual.nome.isBlank()) {
 
-            _uiState.update {
-                it.copy(
-                    mensagemErro =
-                        "Preencha todos os campos antes de continuar."
-                )
-            }
+            atualizarErro(
+                "Informe o nome."
+            )
+
+            return false
+        }
+
+        if (estadoAtual.idade.isBlank()) {
+
+            atualizarErro(
+                "Informe a idade."
+            )
+
+            return false
+        }
+
+        if (estadoAtual.cpf.length != 11) {
+
+            atualizarErro(
+                "Informe um CPF com 11 dígitos."
+            )
+
+            return false
+        }
+
+        if (
+            estadoAtual.telefone.length !in 10..11
+        ) {
+
+            atualizarErro(
+                "Informe um telefone válido com DDD."
+            )
+
+            return false
+        }
+
+        if (estadoAtual.motivo.isBlank()) {
+
+            atualizarErro(
+                "Informe o motivo do atendimento."
+            )
+
+            return false
+        }
+
+        if (estadoAtual.especialidade == null) {
+
+            atualizarErro(
+                "Selecione uma área de atendimento."
+            )
 
             return false
         }
 
         return true
+    }
+
+    private fun atualizarErro(
+        mensagem: String
+    ) {
+
+        _uiState.update {
+            it.copy(
+                mensagemErro = mensagem
+            )
+        }
     }
 
     fun limparTriagem() {

@@ -8,21 +8,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import br.com.afya.triagemsocial.model.Especialidade
 import br.com.afya.triagemsocial.model.TriagemUiState
-import androidx.compose.material3.Surface
 
 @Composable
 fun TriagemScreen(
@@ -30,25 +33,36 @@ fun TriagemScreen(
     onNomeChange: (String) -> Unit,
     onIdadeChange: (String) -> Unit,
     onCpfChange: (String) -> Unit,
+    onTelefoneChange: (String) -> Unit,
     onMotivoChange: (String) -> Unit,
     onEspecialidadeChange: (Especialidade) -> Unit,
     onContinuar: () -> Unit
 ) {
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .systemBarsPadding()
+                .verticalScroll(
+                    rememberScrollState()
+                )
                 .padding(24.dp)
         ) {
 
             Text(
                 text = "Triagem Social",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                style =
+                    MaterialTheme.typography
+                        .headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color =
+                    MaterialTheme.colorScheme
+                        .onBackground
             )
 
             Spacer(
@@ -56,7 +70,11 @@ fun TriagemScreen(
             )
 
             Text(
-                text = "Informe seus dados e selecione a área de atendimento."
+                text =
+                    "Informe seus dados e selecione a área de atendimento.",
+                color =
+                    MaterialTheme.colorScheme
+                        .onBackground
             )
 
             Spacer(
@@ -65,68 +83,132 @@ fun TriagemScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor =
-                        MaterialTheme.colorScheme.surfaceVariant
-                )
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor =
+                            MaterialTheme
+                                .colorScheme
+                                .surfaceVariant
+                    )
             ) {
 
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier =
+                        Modifier.padding(16.dp)
                 ) {
 
                     Text(
                         text = "Dados pessoais",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        style =
+                            MaterialTheme
+                                .typography
+                                .titleMedium,
+                        fontWeight =
+                            FontWeight.Bold
                     )
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(
+                        Modifier.height(16.dp)
+                    )
 
                     OutlinedTextField(
                         value = uiState.nome,
-                        onValueChange = onNomeChange,
+                        onValueChange =
+                            onNomeChange,
                         label = {
                             Text("Nome")
                         },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier =
+                            Modifier.fillMaxWidth()
                     )
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(
+                        Modifier.height(12.dp)
+                    )
 
                     OutlinedTextField(
                         value = uiState.idade,
-                        onValueChange = onIdadeChange,
+                        onValueChange =
+                            onIdadeChange,
                         label = {
                             Text("Idade")
                         },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Number
+                            ),
+                        modifier =
+                            Modifier.fillMaxWidth()
                     )
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(
+                        Modifier.height(12.dp)
+                    )
 
                     OutlinedTextField(
                         value = uiState.cpf,
-                        onValueChange = onCpfChange,
+                        onValueChange =
+                            onCpfChange,
                         label = {
                             Text("CPF")
                         },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Number
+                            ),
+                        modifier =
+                            Modifier.fillMaxWidth()
                     )
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(
+                        Modifier.height(12.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = uiState.telefone,
+                        onValueChange =
+                            onTelefoneChange,
+                        label = {
+                            Text(
+                                "Telefone para contato"
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                "(46) 99999-9999"
+                            )
+                        },
+                        singleLine = true,
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Phone
+                            ),
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(
+                        Modifier.height(12.dp)
+                    )
 
                     OutlinedTextField(
                         value = uiState.motivo,
-                        onValueChange = onMotivoChange,
+                        onValueChange =
+                            onMotivoChange,
                         label = {
-                            Text("Motivo do atendimento")
+                            Text(
+                                "Motivo do atendimento"
+                            )
                         },
                         minLines = 3,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier =
+                            Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -137,7 +219,9 @@ fun TriagemScreen(
 
             Text(
                 text = "Área de atendimento",
-                style = MaterialTheme.typography.titleMedium,
+                style =
+                    MaterialTheme.typography
+                        .titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
@@ -147,7 +231,8 @@ fun TriagemScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp)
             ) {
 
                 Button(
@@ -156,7 +241,8 @@ fun TriagemScreen(
                             Especialidade.PSICOLOGIA
                         )
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier =
+                        Modifier.weight(1f)
                 ) {
                     Text("Psicologia")
                 }
@@ -167,7 +253,8 @@ fun TriagemScreen(
                             Especialidade.DIREITO
                         )
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier =
+                        Modifier.weight(1f)
                 ) {
                     Text("Direito")
                 }
@@ -179,7 +266,8 @@ fun TriagemScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp)
             ) {
 
                 Button(
@@ -188,7 +276,8 @@ fun TriagemScreen(
                             Especialidade.FISIOTERAPIA
                         )
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier =
+                        Modifier.weight(1f)
                 ) {
                     Text("Fisioterapia")
                 }
@@ -199,36 +288,59 @@ fun TriagemScreen(
                             Especialidade.FARMACIA
                         )
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier =
+                        Modifier.weight(1f)
                 ) {
                     Text("Farmácia")
                 }
             }
 
-            if (uiState.especialidade != null) {
+            if (
+                uiState.especialidade != null
+            ) {
 
                 Spacer(
-                    modifier = Modifier.height(16.dp)
+                    modifier =
+                        Modifier.height(16.dp)
                 )
 
                 Text(
                     text =
                         "Área selecionada: " +
-                                uiState.especialidade.nomeExibicao,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                                uiState
+                                    .especialidade
+                                    .nomeExibicao,
+
+                    color =
+                        MaterialTheme
+                            .colorScheme
+                            .primary,
+
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
 
-            if (uiState.mensagemErro != null) {
+            if (
+                uiState.mensagemErro != null
+            ) {
 
                 Spacer(
-                    modifier = Modifier.height(16.dp)
+                    modifier =
+                        Modifier.height(16.dp)
                 )
 
                 Text(
-                    text = uiState.mensagemErro,
-                    color = MaterialTheme.colorScheme.error
+                    text =
+                        uiState.mensagemErro,
+
+                    color =
+                        MaterialTheme
+                            .colorScheme
+                            .error,
+
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
 
@@ -240,6 +352,7 @@ fun TriagemScreen(
                 onClick = onContinuar,
                 modifier = Modifier.fillMaxWidth()
             ) {
+
                 Text("Continuar")
             }
 

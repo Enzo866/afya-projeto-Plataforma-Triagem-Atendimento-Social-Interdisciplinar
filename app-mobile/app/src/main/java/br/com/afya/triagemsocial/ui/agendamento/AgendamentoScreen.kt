@@ -27,7 +27,6 @@ fun AgendamentoScreen(uiState: AgendamentoUiState,
             OutlinedTextField(uiState.horarioSelecionado,
                 onHorarioSelecionado, label = { Text("Horário: HH:mm") },
                 modifier = Modifier.fillMaxWidth(), singleLine = true)
-            Text("Duração: 1 hora na mesma especialidade.")
             uiState.erro?.let {
                 Text(it, color = MaterialTheme.colorScheme.error)
             }

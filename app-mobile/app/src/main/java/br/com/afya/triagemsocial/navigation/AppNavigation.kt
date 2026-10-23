@@ -1,229 +1,120 @@
 package br.com.afya.triagemsocial.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import br.com.afya.triagemsocial.ui.agendamento.AgendamentoScreen
-import br.com.afya.triagemsocial.ui.atendimentos.MeusAtendimentosScreen
+import androidx.navigation.compose.*
+import br.com.afya.triagemsocial.data.local.*
+import br.com.afya.triagemsocial.data.repository.*
+import br.com.afya.triagemsocial.ui.agendamento.*
+import br.com.afya.triagemsocial.ui.atendimentos.*
 import br.com.afya.triagemsocial.ui.home.HomeScreen
 import br.com.afya.triagemsocial.ui.resultado.ResultadoScreen
 import br.com.afya.triagemsocial.ui.triagem.TriagemScreen
-import br.com.afya.triagemsocial.viewmodel.AgendamentoViewModel
-import br.com.afya.triagemsocial.viewmodel.TriagemViewModel
+import br.com.afya.triagemsocial.viewmodel.*
 
+fun <VM : ViewModel> fabrica(tipo: Class<VM>, criar: () -> VM)
+        : ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        require(modelClass == tipo)
+        return criar() as T
+    }
+}
 @Composable
 fun AppNavigation(
-    navController: NavHostController =
-        rememberNavController(),
-
-    triagemViewModel: TriagemViewModel =
-        viewModel(),
-
-    agendamentoViewModel: AgendamentoViewModel =
-        viewModel()
+    navController: NavHostController = rememberNavController(),
+    triagemViewModel: TriagemViewModel = viewModel()
 ) {
-
-    val triagemState by
-    triagemViewModel
-        .uiState
-        .collectAsStateWithLifecycle()
-
-    val agendamentoState by
-    agendamentoViewModel
-        .uiState
-        .collectAsStateWithLifecycle()
-
-    NavHost(
-        navController = navController,
-        startDestination = "home"
-    ) {
-
+    val appContext = LocalContext.current.applicationContext
+    val factory = remember(appContext) {
+        val repo = RoomAgendamentoRepository(
+            AgendamentoLocalDataSource(AppDatabase.obter(appContext)))
+        fabrica(AgendamentoViewModel::class.java) {
+            AgendamentoViewModel(repo)
+        }
+    }
+    val vm: AgendamentoViewModel = viewModel(factory = factory)
+    val triagem by triagemViewModel.uiState.collectAsStateWithLifecycle()
+    val estado by vm.uiState.collectAsStateWithLifecycle()
+    NavHost(navController, startDestination = "home") {
         composable("home") {
-
             HomeScreen(
-
-                onIniciarTriagem = {
-                    navController.navigate(
-                        "triagem"
-                    )
-                },
-
+                onIniciarTriagem = { navController.navigate("triagem") },
                 onMeusAtendimentos = {
-                    navController.navigate(
-                        "meus_atendimentos"
-                    )
-                },
-
-                onAcessoProfissional = {
-                    // Tela profissional será
-                    // adicionada futuramente.
-                }
-            )
+                    navController.navigate("meus_atendimentos")
+                }, onAcessoProfissional = {})
         }
-
         composable("triagem") {
-
-            TriagemScreen(
-
-                uiState = triagemState,
-
-                onNomeChange =
-                    triagemViewModel::
-                    onNomeChange,
-
-                onIdadeChange =
-                    triagemViewModel::
-                    onIdadeChange,
-
-                onCpfChange =
-                    triagemViewModel::
-                    onCpfChange,
-
-                onTelefoneChange =
-                    triagemViewModel::
-                    onTelefoneChange,
-
-                onMotivoChange =
-                    triagemViewModel::
-                    onMotivoChange,
-
-                onEspecialidadeChange =
-                    triagemViewModel::
-                    onEspecialidadeChange,
-
+            TriagemScreen(uiState = triagem,
+                onNomeChange = triagemViewModel::onNomeChange,
+                onIdadeChange = triagemViewModel::onIdadeChange,
+                onCpfChange = triagemViewModel::onCpfChange,
+                onTelefoneChange = triagemViewModel::onTelefoneChange,
+                onMotivoChange = triagemViewModel::onMotivoChange,
+                onEspecialidadeChange = triagemViewModel::onEspecialidadeChange,
                 onContinuar = {
-
-                    if (
-                        triagemViewModel
-                            .validarTriagem()
-                    ) {
-
-                        navController.navigate(
-                            "resultado"
-                        )
+                    if (triagemViewModel.validarTriagem()) {
+                        navController.navigate("resultado")
                     }
-                }
-            )
+                })
         }
-
         composable("resultado") {
-
-            val especialidade =
-                triagemState.especialidade
-
-            if (
-                especialidade != null
-            ) {
-
-                ResultadoScreen(
-
-                    especialidade =
-                        especialidade,
-
-                    onAgendar = {
-                        navController.navigate(
-                            "agendamento"
-                        )
-                    },
-
-                    onVoltar = {
-                        navController
-                            .popBackStack()
-                    }
-                )
+            triagem.especialidade?.let { area ->
+                ResultadoScreen(area,
+                    onAgendar = { navController.navigate("agendamento") },
+                    onVoltar = { navController.popBackStack() })
             }
         }
-
         composable("agendamento") {
-
-            AgendamentoScreen(
-
-                uiState =
-                    agendamentoState,
-
-                datas =
-                    agendamentoViewModel
-                        .datasDisponiveis,
-
-                horarios =
-                    agendamentoViewModel
-                        .horariosDisponiveis,
-
-                onDataSelecionada =
-                    agendamentoViewModel::
-                    selecionarData,
-
-                onHorarioSelecionado =
-                    agendamentoViewModel::
-                    selecionarHorario,
-
-                onConfirmar = {
-
-                    val especialidade =
-                        triagemState
-                            .especialidade
-
-                    if (
-                        especialidade != null
-                    ) {
-
-                        val sucesso =
-                            agendamentoViewModel
-                                .confirmarAgendamento(
-
-                                    nome =
-                                        triagemState
-                                            .nome,
-
-                                    cpf =
-                                        triagemState
-                                            .cpf,
-
-                                    especialidade =
-                                        especialidade
-                                )
-
-                        if (sucesso) {
-
-                            navController.navigate(
-                                "meus_atendimentos"
-                            ) {
-
-                                popUpTo(
-                                    "home"
-                                )
+            AgendamentoScreen(estado, vm::selecionarData,
+                vm::selecionarHorario, onConfirmar = {
+                    val area = triagem.especialidade
+                    if (area != null) {
+                        val inicio = try {
+                            inicioEmMillis(estado.dataSelecionada,
+                                estado.horarioSelecionado)
+                        } catch (e: IllegalArgumentException) {
+                            vm.informarErro(e.message ?: "Revise data e horário.")
+                            null
+                        }
+                        if (inicio != null) vm.salvar(AgendamentoDados(
+                            nome = triagem.nome, cpf = triagem.cpf,
+                            idade = triagem.idade, telefone = triagem.telefone,
+                            motivo = triagem.motivo, especialidade = area,
+                            inicio = inicio)) {
+                            triagemViewModel.limparTriagem()
+                            navController.navigate("meus_atendimentos") {
+                                popUpTo("home")
+                                launchSingleTop = true
                             }
                         }
                     }
-                },
-
-                onVoltar = {
-                    navController
-                        .popBackStack()
-                }
-            )
+                }, onVoltar = { navController.popBackStack() })
         }
-
-        composable(
-            "meus_atendimentos"
-        ) {
-
+        composable("meus_atendimentos") {
             MeusAtendimentosScreen(
-
-                agendamentos =
-                    agendamentoState
-                        .agendamentos,
-
-                onVoltar = {
-                    navController
-                        .popBackStack()
-                }
-            )
+                agendamentos = estado.agendamentos,
+                erro = estado.erro, ocupado = estado.salvando,
+                onEditar = { navController.navigate("editar/$it") },
+                onExcluir = vm::excluir,
+                onVoltar = { navController.popBackStack() })
+        }
+        composable("editar/{id}") { rota ->
+            val id = rota.arguments?.getString("id")?.toIntOrNull()
+            val item = estado.agendamentos.firstOrNull { it.id == id }
+            if (item == null) Text("Carregando atendimento...")
+            else EditarAgendamentoScreen(item, estado.erro, estado.salvando,
+                onSalvar = { data, hora ->
+                    vm.reagendar(item.id, data, hora) {
+                        navController.popBackStack()
+                    }
+                }, onVoltar = { navController.popBackStack() })
         }
     }
 }

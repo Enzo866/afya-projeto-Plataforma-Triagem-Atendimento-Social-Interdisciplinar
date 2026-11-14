@@ -48,8 +48,6 @@ Nesta versão, data e horário são informados em campos de texto Compose. A imp
 - Gradle
 - Git e GitHub
 
-Retrofit e DataStore pertencem à frente de integração seguinte e não são apresentados como recursos concluídos nesta versão.
-
 ## Arquitetura
 
 O acesso aos dados segue o fluxo:
@@ -178,13 +176,113 @@ As versões das bibliotecas e dos plugins estão declaradas nos arquivos Gradle 
 5. Selecione um emulador ou dispositivo Android.
 6. Execute o módulo `app`.
 
+### Catálogo de serviços
+
+Após a integração, a Home disponibiliza a opção **Conhecer serviços**, que consulta Psicologia, Fisioterapia, Farmácia e Direito no servidor mock.
+
+- Requisição assíncrona com Retrofit e conversão de JSON com Gson.
+- Separação entre API, fonte remota, Repository e ViewModel.
+- Estado de interface modelado com `sealed interface` e exposto por `StateFlow` imutável.
+- Indicador durante o carregamento.
+- Exibição dos serviços em caso de sucesso e mensagem quando a lista estiver vazia.
+- Mensagem amigável de erro e botão **Tentar novamente**.
+
+O fluxo dessa consulta é:
+
+```text
+Conhecer serviços
+        |
+        v
+CatalogoViewModel
+        |
+        v
+EspecialidadeRepository
+        |
+        v
+EspecialidadeRemoteDataSource
+        |
+        v
+Retrofit / EspecialidadeApi
+        |
+        v
+Mock HTTP no computador
+```
+
+### Filtro persistido com DataStore
+
+A listagem de atendimentos recebe os filtros `TODOS`, `PENDENTE`, `AGENDADO`, `CANCELADO` e `CONCLUIDO`. A escolha é salva em Preferences DataStore e restaurada ao reabrir o aplicativo.
+
+- `PreferenciasDataSource` realiza a leitura por `Flow` e a escrita da preferência.
+- `PreferenciasRepository` converte o valor salvo para o filtro permitido e utiliza `Dispatchers.IO` na escrita.
+- `PreferenciasViewModel` disponibiliza a seleção e informa falhas ao salvar.
+- A interface aplica o filtro aos registros fornecidos pelo Room.
+
+O DataStore armazena apenas a preferência. Os agendamentos continuam no Room. Escolher um filtro não altera o status dos registros nem implementa uma operação de cancelamento ou conclusão.
+
+
+## Como executar o mock local
+
+O mock utiliza Node.js e não exige instalar pacotes npm. Tenha o comando `node` disponível no terminal e o Android SDK instalado.
+
+O servidor roda no computador e atende em `http://127.0.0.1:8080/`. O aplicativo usa o mesmo endereço. O encaminhamento com `adb reverse` liga a porta do Android à porta do computador.
+
+### Pelo terminal do Android Studio, sem usar o arquivo CMD
+
+1. Abra um único emulador ou conecte um único celular com depuração USB autorizada.
+2. Abra a aba **Terminal** do Android Studio usando PowerShell e entre na pasta `app-mobile`.
+3. Configure o encaminhamento da porta, considerando a instalação padrão do SDK no Windows:
+
+   ```powershell
+   & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8080 tcp:8080
+   ```
+
+4. Inicie o servidor:
+
+   ```powershell
+   node mock/servidor.cjs
+   ```
+
+5. Mantenha esse terminal aberto. Execute a versão **debug** do aplicativo no Android Studio e toque em **Conhecer serviços**.
+
+Se o SDK estiver em outro local, utilize o caminho correspondente ao `adb.exe`. Repita o encaminhamento quando reiniciar ou reconectar o dispositivo. Caso haja vários dispositivos conectados, selecione um com `adb -s IDENTIFICADOR reverse tcp:8080 tcp:8080`.
+
+Para verificar o servidor no navegador do computador, abra:
+
+```text
+http://127.0.0.1:8080/especialidades
+```
+
+A resposta deve ser uma lista JSON com as quatro especialidades. Para encerrar o servidor, pressione **Ctrl + C** no terminal. A consulta ao catálogo depende do servidor em execução; a persistência local dos agendamentos continua independente dele.
+
+### Rotas disponíveis e teste de erro
+
+| Método | Rota | Comportamento |
+|---|---|---|
+| `GET` | `/especialidades` | Retorna o catálogo em JSON; retorna HTTP 503 quando a falha simulada estiver ativa. |
+| `GET` | `/falhar` | Ativa a falha simulada para as consultas seguintes. |
+| `GET` | `/normal` | Desativa a falha simulada e restaura a resposta normal. |
+
+Para demonstrar erro e recuperação:
+
+1. Com o servidor aberto, acesse `http://127.0.0.1:8080/falhar` no navegador do computador.
+2. Abra a tela **Conhecer serviços** no app para fazer uma nova consulta, ou use **Tentar novamente** caso já esteja no estado de erro.
+3. Confira a mensagem de falha.
+4. Acesse `http://127.0.0.1:8080/normal` no navegador.
+5. Toque em **Tentar novamente** e confira a recuperação do catálogo.
+
+O servidor inclui um atraso de um segundo para tornar o carregamento observável na demonstração. Alterar `/falhar` ou `/normal` não atualiza uma tela que já terminou de carregar: é necessário fazer uma nova consulta.
+
+### Configuração de rede
+
+O manifesto principal declara a permissão `INTERNET`. O manifesto em `src/debug` aplica `rede_mock.xml`, permitindo HTTP sem criptografia somente para `localhost` e `127.0.0.1` na versão debug.
+
+O mock é destinado à demonstração local. Ele não oferece autenticação, armazenamento compartilhado ou reserva de horários. A configuração debug não prepara o aplicativo para implantação de uma API em produção.
+
 ## Limitações e próximas etapas
 
 ### Integração técnica
 
-- Confirmar a compilação e o funcionamento da camada Room no projeto integrado.
-- Integrar Retrofit e uma fonte REST, incluindo carregamento, sucesso, erro e nova tentativa.
-- Persistir uma preferência com DataStore ou SharedPreferences.
+- Confirmar a compilação e o funcionamento conjunto de Room, consulta REST e preferência persistida após a integração.
 - Completar o menu principal com os grupos funcionais previstos na tarefa.
 - Ampliar os testes das regras e verificar diferentes dimensões de tela.
 
@@ -196,5 +294,3 @@ As versões das bibliotecas e dos plugins estão declaradas nos arquivos Gradle 
 - Sincronizar os agendamentos e impedir reservas concorrentes entre dispositivos.
 - Definir e implementar a área profissional e suas permissões.
 - Validar o escopo de cancelamento, confirmação de presença e demais mudanças de status.
-
-A listagem atual apresenta os registros locais do aparelho, sem autenticação ou separação segura por pessoa. Room não substitui um serviço compartilhado nem resolve conflitos entre dispositivos.

@@ -1,6 +1,12 @@
 package br.com.afya.triagemsocial.navigation
-
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import br.com.afya.triagemsocial.data.remote.CatalogoContainer
+import br.com.afya.triagemsocial.ui.triagem.CatalogoConteudo
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -17,7 +23,6 @@ import br.com.afya.triagemsocial.ui.home.HomeScreen
 import br.com.afya.triagemsocial.ui.resultado.ResultadoScreen
 import br.com.afya.triagemsocial.ui.triagem.TriagemScreen
 import br.com.afya.triagemsocial.viewmodel.*
-
 fun <VM : ViewModel> fabrica(tipo: Class<VM>, criar: () -> VM)
         : ViewModelProvider.Factory = object : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
@@ -42,13 +47,22 @@ fun AppNavigation(
     val vm: AgendamentoViewModel = viewModel(factory = factory)
     val triagem by triagemViewModel.uiState.collectAsStateWithLifecycle()
     val estado by vm.uiState.collectAsStateWithLifecycle()
+    val prefsFactory = remember(appContext) {
+        fabrica(PreferenciasViewModel::class.java) {
+            PreferenciasViewModel(PreferenciasRepository(
+                PreferenciasDataSource(appContext)))
+        }
+    }
+    val prefs: PreferenciasViewModel = viewModel(factory = prefsFactory)
+    val filtro by prefs.filtro.collectAsStateWithLifecycle()
+    val erroFiltro by prefs.erro.collectAsStateWithLifecycle()
     NavHost(navController, startDestination = "home") {
         composable("home") {
             HomeScreen(
                 onIniciarTriagem = { navController.navigate("triagem") },
                 onMeusAtendimentos = {
                     navController.navigate("meus_atendimentos")
-                }, onAcessoProfissional = {})
+                }, onConhecerServicos = { navController.navigate("servicos") })
         }
         composable("triagem") {
             TriagemScreen(uiState = triagem,
@@ -99,11 +113,13 @@ fun AppNavigation(
         }
         composable("meus_atendimentos") {
             MeusAtendimentosScreen(
-                agendamentos = estado.agendamentos,
+                agendamentos = estado.agendamentos.filter { filtro.aceita(it.status) },
                 erro = estado.erro, ocupado = estado.salvando,
                 onEditar = { navController.navigate("editar/$it") },
                 onExcluir = vm::excluir,
-                onVoltar = { navController.popBackStack() })
+                onVoltar = { navController.popBackStack() },
+                filtros = { FiltrosAtendimentos(filtro, erroFiltro,
+                    prefs::selecionar) })
         }
         composable("editar/{id}") { rota ->
             val id = rota.arguments?.getString("id")?.toIntOrNull()
@@ -115,6 +131,26 @@ fun AppNavigation(
                         navController.popBackStack()
                     }
                 }, onVoltar = { navController.popBackStack() })
+        }
+        composable("servicos") {
+            val catalogoFactory = remember {
+                fabrica(CatalogoViewModel::class.java) {
+                    CatalogoViewModel(CatalogoContainer.repository)
+                }
+            }
+            val catalogo: CatalogoViewModel = viewModel(
+                factory = catalogoFactory)
+            val servicos by catalogo.state.collectAsStateWithLifecycle()
+            Surface(Modifier.fillMaxSize()) {
+                Column(Modifier.fillMaxSize().systemBarsPadding()
+                    .verticalScroll(rememberScrollState()).padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    CatalogoConteudo(servicos, catalogo::carregar)
+                    OutlinedButton(onClick = {
+                        navController.popBackStack()
+                    }) { Text("Voltar") }
+                }
+            }
         }
     }
 }

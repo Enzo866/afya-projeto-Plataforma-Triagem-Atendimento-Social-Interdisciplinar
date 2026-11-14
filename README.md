@@ -14,25 +14,26 @@ Aplicação Android desenvolvida em Kotlin e Jetpack Compose para facilitar o ac
 
 ### Identificação e solicitação
 
-- Formulário com nome, idade, CPF, telefone e motivo do atendimento.
+- Formulário com nome, data de nascimento selecionada no calendário, CPF e motivo do atendimento. A idade é calculada pela data do aparelho. A partir dos 18 anos, o formulário pede o telefone do paciente.
 - Escolha entre Psicologia, Fisioterapia, Farmácia e Direito.
 - Validação de preenchimento e formato antes de prosseguir.
-- Apresentação da especialidade escolhida antes do agendamento.
+- Solicitação do nome completo e do telefone com DDD do responsável para menores de 18 anos.
+- Acesso direto ao agendamento após a triagem, com a especialidade escolhida exibida na tela de agendamento.
 
 O CPF é verificado pelo formato de 11 dígitos; não há validação dos dígitos verificadores. O telefone é verificado pelo tamanho de 10 ou 11 dígitos, incluindo DDD.
 
 ### Agendamento e acompanhamento
 
-- Informação da data no formato `dd/MM/aaaa` e do horário no formato `HH:mm`.
+- Seleção de data em calendário e de horário no formato de 24 horas, no cadastro e na edição.
 - Validação de data e horário futuros antes da gravação.
 - Persistência local dos agendamentos com Room.
+- Novos agendamentos começam com o status Pendente.
 - Listagem com especialidade, data, horário e status.
+- Detalhes do atendimento com nome do solicitante, área, data, horário e status.
 - Atualização da listagem por observação do banco com `Flow`.
 - Edição de data e horário, preservando o identificador e os demais dados.
 - Exclusão com diálogo de confirmação.
-- Confirmação antes de descartar alterações na edição do horário.
-
-Nesta versão, data e horário são informados em campos de texto Compose. A implementação anterior com seletores nativos de calendário e horário foi substituída na entrega de persistência.
+- Confirmação antes de descartar alterações na triagem, no agendamento ou na edição do horário.
 
 ## Tecnologias
 
@@ -97,15 +98,17 @@ br.com.afya.triagemsocial/
 |   |-- StatusAgendamento.kt
 |   `-- TriagemUiState.kt
 |-- navigation/
+|   |-- AppDestinos.kt
 |   `-- AppNavigation.kt
 |-- ui/
 |   |-- agendamento/
 |   |   |-- AgendamentoScreen.kt
 |   |   `-- EditarAgendamentoScreen.kt
 |   |-- atendimentos/
+|   |   |-- DetalhesAtendimentoScreen.kt
 |   |   `-- MeusAtendimentosScreen.kt
+|   |-- components/
 |   |-- home/
-|   |-- resultado/
 |   |-- triagem/
 |   `-- theme/
 |-- viewmodel/
@@ -116,7 +119,7 @@ br.com.afya.triagemsocial/
 
 ## Persistência local
 
-O banco `afya_conecta.db` armazena nome, CPF, idade, telefone, motivo, especialidade, início e status do atendimento, além de um identificador gerado pelo banco.
+O banco `afya_conecta.db` armazena nome, CPF, idade calculada no cadastro, telefone, motivo, especialidade, início e status do atendimento, além de um identificador gerado pelo banco. Novos agendamentos de menores de 18 anos também registram nome e telefone do responsável.
 
 O início é armazenado em milissegundos e convertido para data e horário na apresentação. O tratamento de data e hora utiliza o fuso do aparelho.
 
@@ -128,6 +131,7 @@ A persistência foi projetada para manter os registros após encerrar e reabrir 
 
 A implementação local adota as seguintes regras, que devem ser confirmadas com os responsáveis pelos atendimentos:
 
+- Agendamentos e reagendamentos podem começar de segunda a sábado, das 07:00 às 23:00, no horário do aparelho.
 - Cada atendimento ocupa uma hora na mesma especialidade.
 - Intervalos menores que uma hora entre os inícios de dois atendimentos da mesma especialidade geram conflito.
 - Uma diferença de exatamente uma hora é permitida.
@@ -136,19 +140,33 @@ A implementação local adota as seguintes regras, que devem ser confirmadas com
 - Na edição, o próprio registro é desconsiderado na busca de conflitos.
 - A consulta de conflitos e a gravação são executadas na mesma transação local.
 
-A existência do status `CANCELADO` não significa que já exista uma funcionalidade de cancelamento. Essa operação continua pendente nesta versão.
+Na demonstração, o profissional pode marcar seus atendimentos como cancelados. Reativar um registro cancelado verifica novamente os conflitos de horário da área.
 
 ## Navegação
 
 ```text
-Home
-|-- Triagem -> Resultado -> Agendamento -> Meus Atendimentos
-`-- Meus Atendimentos
-    |-- Editar horário -> Salvar ou descartar alterações
-    `-- Excluir -> Confirmar ou cancelar a exclusão
+Início -> Triagem -> Agendamento -> Atendimentos
+Atendimentos -> Ver detalhes -> Editar horário
+Atendimentos -> Editar horário ou excluir
+Serviços -> Catálogo de atendimentos
 ```
 
-O tema acompanha a configuração clara ou escura do dispositivo. A área profissional ainda não está implementada; o botão existente na versão base não executa uma operação de acesso.
+A barra inferior alterna entre Início, Atendimentos e Serviços. As telas de triagem, agendamento, detalhes e edição oferecem a ação Voltar na barra superior.
+
+O tema acompanha a configuração clara ou escura do dispositivo.
+
+## Acesso profissional de demonstração
+
+Na versão debug do Android Studio, toque em **Acesso profissional** na tela Início. Cada conta abre a agenda da sua especialidade no aparelho. A lista mostra o nome e o telefone do paciente adulto. Para menores de 18 anos, mostra o nome do paciente, o nome do responsável e o telefone do responsável. Registros antigos sem dados do responsável exibem “Não informado” nos campos ausentes. Use **Alterar status** em um atendimento para escolher Pendente, Agendado, Cancelado ou Concluído. A atualização aparece também em Meus atendimentos. Use **Sair** para encerrar a sessão.
+
+| Área | Usuário | Senha de demonstração |
+| --- | --- | --- |
+| Psicologia | `psicologia` | `Psico#2026` |
+| Fisioterapia | `fisioterapia` | `Fisio#2026` |
+| Farmácia | `farmacia` | `Farma#2026` |
+| Direito | `direito` | `Direito#2026` |
+
+As contas são fixas e estão incluídas somente na versão debug. Use dados fictícios nessa versão. A restrição por especialidade vale dentro do painel profissional, e a tela Meus atendimentos ainda mostra os registros locais do aparelho. Para uso institucional, é necessário autenticar profissionais e pacientes e autorizar cada consulta e atualização em um servidor compartilhado.
 
 ## Como executar
 
@@ -292,5 +310,5 @@ O mock é destinado à demonstração local. Ele não oferece autenticação, ar
 - Consultar a disponibilidade institucional por área.
 - Implementar identificação e controle de acesso aos registros.
 - Sincronizar os agendamentos e impedir reservas concorrentes entre dispositivos.
-- Definir e implementar a área profissional e suas permissões.
+- Implementar autenticação e autorização de profissionais e pacientes no servidor.
 - Validar o escopo de cancelamento, confirmação de presença e demais mudanças de status.

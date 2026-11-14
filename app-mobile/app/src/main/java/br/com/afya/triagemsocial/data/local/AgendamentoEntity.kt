@@ -15,7 +15,9 @@ data class AgendamentoEntity(
     val motivo: String,
     val especialidade: String,
     val inicio: Long,
-    val status: String
+    val status: String,
+    val nomeResponsavel: String? = null,
+    val telefoneResponsavel: String? = null
 )
 
 data class AgendamentoDados(
@@ -26,10 +28,13 @@ data class AgendamentoDados(
     val motivo: String,
     val especialidade: Especialidade,
     val inicio: Long,
-    val status: StatusAgendamento = StatusAgendamento.AGENDADO
+    val status: StatusAgendamento = StatusAgendamento.PENDENTE,
+    val nomeResponsavel: String? = null,
+    val telefoneResponsavel: String? = null
 )
 
 fun AgendamentoDados.entidade(id: Int = 0) = AgendamentoEntity(
     id, nome.trim(), cpf, idade, telefone, motivo.trim(),
-    especialidade.name, inicio, status.name
+    especialidade.name, inicio, status.name,
+    nomeResponsavel?.trim(), telefoneResponsavel
 )

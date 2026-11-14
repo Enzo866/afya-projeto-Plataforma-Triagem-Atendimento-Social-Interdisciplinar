@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [AgendamentoEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -15,6 +17,12 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         @Volatile private var instancia: AppDatabase? = null
+        private val migracao1Para2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE agendamentos ADD COLUMN nomeResponsavel TEXT")
+                db.execSQL("ALTER TABLE agendamentos ADD COLUMN telefoneResponsavel TEXT")
+            }
+        }
 
         fun obter(context: Context): AppDatabase =
             instancia ?: synchronized(this) {
@@ -22,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "afya_conecta.db"
-                ).build().also { instancia = it }
+                ).addMigrations(migracao1Para2).build().also { instancia = it }
             }
     }
 }

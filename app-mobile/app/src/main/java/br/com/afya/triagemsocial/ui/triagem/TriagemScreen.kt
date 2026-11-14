@@ -1,364 +1,123 @@
 package br.com.afya.triagemsocial.ui.triagem
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import br.com.afya.triagemsocial.model.Especialidade
-import br.com.afya.triagemsocial.model.TriagemUiState
+import br.com.afya.triagemsocial.model.*
+import br.com.afya.triagemsocial.ui.components.SelecionarDataDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.GregorianCalendar
+import java.util.Locale
+import java.util.TimeZone
 
 @Composable
-fun TriagemScreen(
-    uiState: TriagemUiState,
+fun TriagemScreen(uiState: TriagemUiState,
     onNomeChange: (String) -> Unit,
-    onIdadeChange: (String) -> Unit,
+    onDataNascimentoChange: (String) -> Unit,
+    onNomeResponsavelChange: (String) -> Unit,
+    onTelefoneResponsavelChange: (String) -> Unit,
     onCpfChange: (String) -> Unit,
     onTelefoneChange: (String) -> Unit,
     onMotivoChange: (String) -> Unit,
     onEspecialidadeChange: (Especialidade) -> Unit,
-    onContinuar: () -> Unit
-) {
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding()
-                .verticalScroll(
-                    rememberScrollState()
-                )
-                .padding(24.dp)
-        ) {
-
-            Text(
-                text = "Triagem Social",
-                style =
-                    MaterialTheme.typography
-                        .headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color =
-                    MaterialTheme.colorScheme
-                        .onBackground
-            )
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            Text(
-                text =
-                    "Informe seus dados e selecione a área de atendimento.",
-                color =
-                    MaterialTheme.colorScheme
-                        .onBackground
-            )
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            MaterialTheme
-                                .colorScheme
-                                .surfaceVariant
-                    )
-            ) {
-
-                Column(
-                    modifier =
-                        Modifier.padding(16.dp)
-                ) {
-
-                    Text(
-                        text = "Dados pessoais",
-                        style =
-                            MaterialTheme
-                                .typography
-                                .titleMedium,
-                        fontWeight =
-                            FontWeight.Bold
-                    )
-
-                    Spacer(
-                        Modifier.height(16.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = uiState.nome,
-                        onValueChange =
-                            onNomeChange,
-                        label = {
-                            Text("Nome")
-                        },
-                        singleLine = true,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(
-                        Modifier.height(12.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = uiState.idade,
-                        onValueChange =
-                            onIdadeChange,
-                        label = {
-                            Text("Idade")
-                        },
-                        singleLine = true,
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType.Number
-                            ),
-                        modifier =
-                            Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(
-                        Modifier.height(12.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = uiState.cpf,
-                        onValueChange =
-                            onCpfChange,
-                        label = {
-                            Text("CPF")
-                        },
-                        singleLine = true,
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType.Number
-                            ),
-                        modifier =
-                            Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(
-                        Modifier.height(12.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = uiState.telefone,
-                        onValueChange =
-                            onTelefoneChange,
-                        label = {
-                            Text(
-                                "Telefone para contato"
-                            )
-                        },
-                        placeholder = {
-                            Text(
-                                "(46) 99999-9999"
-                            )
-                        },
-                        singleLine = true,
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType.Phone
-                            ),
-                        modifier =
-                            Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(
-                        Modifier.height(12.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = uiState.motivo,
-                        onValueChange =
-                            onMotivoChange,
-                        label = {
-                            Text(
-                                "Motivo do atendimento"
-                            )
-                        },
-                        minLines = 3,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            Text(
-                text = "Área de atendimento",
-                style =
-                    MaterialTheme.typography
-                        .titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp)
-            ) {
-
-                Button(
-                    onClick = {
-                        onEspecialidadeChange(
-                            Especialidade.PSICOLOGIA
-                        )
-                    },
-                    modifier =
-                        Modifier.weight(1f)
-                ) {
-                    Text("Psicologia")
-                }
-
-                Button(
-                    onClick = {
-                        onEspecialidadeChange(
-                            Especialidade.DIREITO
-                        )
-                    },
-                    modifier =
-                        Modifier.weight(1f)
-                ) {
-                    Text("Direito")
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp)
-            ) {
-
-                Button(
-                    onClick = {
-                        onEspecialidadeChange(
-                            Especialidade.FISIOTERAPIA
-                        )
-                    },
-                    modifier =
-                        Modifier.weight(1f)
-                ) {
-                    Text("Fisioterapia")
-                }
-
-                Button(
-                    onClick = {
-                        onEspecialidadeChange(
-                            Especialidade.FARMACIA
-                        )
-                    },
-                    modifier =
-                        Modifier.weight(1f)
-                ) {
-                    Text("Farmácia")
-                }
-            }
-
-            if (
-                uiState.especialidade != null
-            ) {
-
-                Spacer(
-                    modifier =
-                        Modifier.height(16.dp)
-                )
-
-                Text(
-                    text =
-                        "Área selecionada: " +
-                                uiState
-                                    .especialidade
-                                    .nomeExibicao,
-
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .primary,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-            }
-
-            if (
-                uiState.mensagemErro != null
-            ) {
-
-                Spacer(
-                    modifier =
-                        Modifier.height(16.dp)
-                )
-
-                Text(
-                    text =
-                        uiState.mensagemErro,
-
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .error,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            Button(
-                onClick = onContinuar,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text("Continuar")
-            }
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
+    onContinuar: () -> Unit) {
+    Column(Modifier.fillMaxSize().imePadding()
+        .verticalScroll(rememberScrollState()).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Informe seus dados e selecione a área de atendimento.")
+        Campo("Nome", uiState.nome, onNomeChange)
+        CampoDataNascimento(uiState.dataNascimento, onDataNascimentoChange)
+        Campo("CPF", uiState.cpf, onCpfChange, KeyboardType.Number)
+        if (uiState.exigeTelefonePaciente) {
+            Campo("Telefone com DDD", uiState.telefone, onTelefoneChange, KeyboardType.Phone)
         }
+        if (uiState.exigeResponsavel) {
+            Text("Dados do responsável", style = MaterialTheme.typography.titleMedium)
+            Campo("Nome completo do responsável", uiState.nomeResponsavel, onNomeResponsavelChange)
+            Campo("Telefone do responsável com DDD", uiState.telefoneResponsavel,
+                onTelefoneResponsavelChange, KeyboardType.Phone)
+        }
+        OutlinedTextField(value = uiState.motivo,
+            onValueChange = onMotivoChange,
+            label = { Text("Motivo do atendimento") },
+            minLines = 3, modifier = Modifier.fillMaxWidth())
+        Text("Área de atendimento",
+            style = MaterialTheme.typography.titleMedium)
+        Column(Modifier.selectableGroup()) {
+            Especialidade.entries.forEach { area ->
+                val selecionada = uiState.especialidade == area
+                Row(Modifier.fillMaxWidth()
+                    .selectable(selecionada, role = Role.RadioButton) { onEspecialidadeChange(area) }
+                    .heightIn(min = 48.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = selecionada, onClick = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(area.nomeExibicao)
+                }
+            }
+        }
+        uiState.mensagemErro?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
+        Button(onClick = onContinuar,
+            modifier = Modifier.fillMaxWidth()) { Text("Ir para agendamento") }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CampoDataNascimento(data: String, onSelecionar: (String) -> Unit) {
+    var abrirCalendario by rememberSaveable { mutableStateOf(false) }
+    OutlinedButton(
+        onClick = { abrirCalendario = true },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(if (data.isBlank()) "Selecionar data de nascimento" else "Data de nascimento: $data")
+    }
+
+    if (abrirCalendario) {
+        val hoje = remember { GregorianCalendar() }
+        val anoAtual = hoje.get(Calendar.YEAR)
+        val datasPermitidas = remember(hoje) {
+            val formato = SimpleDateFormat("dd/MM/yyyy", Locale.ROOT).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+                    calcularIdade(formato.format(Date(utcTimeMillis)), hoje) != null
+            }
+        }
+        SelecionarDataDialog(
+            data = data,
+            datasPermitidas = datasPermitidas,
+            onSelecionar = onSelecionar,
+            onFechar = { abrirCalendario = false },
+            anos = (anoAtual - 131)..anoAtual
+        )
+    }
+}
+
+@Composable
+private fun Campo(titulo: String, valor: String,
+    alterar: (String) -> Unit, teclado: KeyboardType = KeyboardType.Text) {
+    OutlinedTextField(value = valor, onValueChange = alterar,
+        label = { Text(titulo) }, singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = teclado),
+        modifier = Modifier.fillMaxWidth())
 }

@@ -1,5 +1,4 @@
 package br.com.afya.triagemsocial.ui.atendimentos
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,52 +8,50 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.afya.triagemsocial.model.Agendamento
+import br.com.afya.triagemsocial.ui.components.ConfirmarAcaoDialog
+import br.com.afya.triagemsocial.ui.components.IndicadorStatus
 
 @Composable
 fun MeusAtendimentosScreen(agendamentos: List<Agendamento>,
-                           erro: String?, ocupado: Boolean, onEditar: (Int) -> Unit,
-                           onExcluir: (Int) -> Unit, onVoltar: () -> Unit,
-                           filtros: @Composable () -> Unit = {}) {
+    erro: String?, ocupado: Boolean, onEditar: (Int) -> Unit,
+    onExcluir: (Int) -> Unit, filtros: @Composable () -> Unit,
+    onDetalhes: (Int) -> Unit) {
     var excluirId by rememberSaveable { mutableStateOf<Int?>(null) }
-    Surface(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().systemBarsPadding().padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Meus atendimentos",
-                style = MaterialTheme.typography.headlineMedium)
-            filtros()
-            erro?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            if (agendamentos.isEmpty()) Text("Nenhum atendimento nesta lista.")
-            LazyColumn(Modifier.weight(1f)) {
-                items(agendamentos, key = { it.id }) { item ->
-                    Card(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
-                        Column(Modifier.padding(12.dp)) {
-                            Text(item.especialidade.nomeExibicao)
-                            Text("${item.data} - ${item.horario}")
-                            Text("Status: ${item.status.name}")
-                            Row {
-                                TextButton(onClick = { onEditar(item.id) },
-                                    enabled = !ocupado) { Text("Editar horário") }
-                                TextButton(onClick = { excluirId = item.id },
-                                    enabled = !ocupado) { Text("Excluir") }
-                            }
-                        }
-                    }
+    LazyColumn(Modifier.fillMaxSize().padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)) {
+        item { filtros() }
+        erro?.let { mensagem ->
+            item { Text(mensagem, color = MaterialTheme.colorScheme.error) }
+        }
+        if (agendamentos.isEmpty()) {
+            item { Text("Nenhum atendimento para o filtro selecionado.") }
+        }
+        items(agendamentos, key = { it.id }) { item ->
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(item.especialidade.nomeExibicao,
+                        style = MaterialTheme.typography.titleMedium)
+                    Text("${item.data} - ${item.horario}")
+                    IndicadorStatus(item.status, prefixo = "Status: ")
+                    OutlinedButton(onClick = { onDetalhes(item.id) },
+                        enabled = !ocupado) { Text("Ver detalhes") }
+                    TextButton(onClick = { onEditar(item.id) },
+                        enabled = !ocupado) { Text("Editar horário") }
+                    TextButton(onClick = { excluirId = item.id },
+                        enabled = !ocupado) { Text("Excluir") }
                 }
             }
-            OutlinedButton(onClick = onVoltar) { Text("Voltar") }
         }
     }
     excluirId?.let { id ->
-        AlertDialog(onDismissRequest = { excluirId = null },
-            title = { Text("Excluir atendimento?") },
-            text = { Text("O registro será removido do aparelho.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    excluirId = null
-                    onExcluir(id)
-                }) { Text("Excluir") }
-            }, dismissButton = {
-                TextButton(onClick = { excluirId = null }) { Text("Cancelar") }
-            })
+        ConfirmarAcaoDialog("Excluir atendimento?",
+            "O registro será removido do aparelho.", "Excluir",
+            confirmar = {
+                excluirId = null
+                onExcluir(id)
+            },
+            cancelar = { excluirId = null })
     }
 }

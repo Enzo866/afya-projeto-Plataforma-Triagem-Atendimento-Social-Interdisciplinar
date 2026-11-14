@@ -7,23 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 @Composable
-fun HomeScreen(onIniciarTriagem: () -> Unit,
-               onMeusAtendimentos: () -> Unit,
-               onConhecerServicos: () -> Unit) {
+fun HomeScreen(onIniciarTriagem: () -> Unit, onAcessoProfissional: (() -> Unit)?) {
     Surface(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().systemBarsPadding()
+        Column(Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("AFYA CONECTA",
-                style = MaterialTheme.typography.headlineMedium)
             Text("Triagem e agendamento de atendimentos sociais")
             Text("Psicologia, Fisioterapia, Farmácia e Direito")
             Button(onClick = onIniciarTriagem) { Text("Iniciar triagem") }
-            OutlinedButton(onClick = onMeusAtendimentos) {
-                Text("Meus atendimentos")
-            }
-            OutlinedButton(onClick = onConhecerServicos) {
-                Text("Conhecer serviços")
+            onAcessoProfissional?.let {
+                OutlinedButton(onClick = it) { Text("Acesso profissional") }
             }
         }
     }

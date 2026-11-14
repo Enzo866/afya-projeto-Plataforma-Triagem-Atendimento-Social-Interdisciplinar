@@ -8,6 +8,15 @@ interface AgendamentoDao {
     @Query("SELECT * FROM agendamentos ORDER BY inicio")
     fun observar(): Flow<List<AgendamentoEntity>>
 
+    @Query("SELECT * FROM agendamentos WHERE especialidade = :area ORDER BY inicio")
+    fun observarDaArea(area: String): Flow<List<AgendamentoEntity>>
+
+    @Query("SELECT * FROM agendamentos WHERE id = :id AND especialidade = :area")
+    suspend fun buscarDaArea(id: Int, area: String): AgendamentoEntity?
+
+    @Query("UPDATE agendamentos SET status = :status WHERE id = :id AND especialidade = :area")
+    suspend fun atualizarStatusDaArea(id: Int, area: String, status: String): Int
+
     @Query("SELECT * FROM agendamentos WHERE id = :id")
     suspend fun buscar(id: Int): AgendamentoEntity?
 

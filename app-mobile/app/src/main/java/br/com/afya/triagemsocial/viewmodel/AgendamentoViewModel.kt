@@ -64,7 +64,9 @@ class AgendamentoViewModel(
             br.com.afya.triagemsocial.data.local
                 .inicioEmMillis(data, hora),
             br.com.afya.triagemsocial.model.StatusAgendamento
-                .valueOf(a.status)), id)
+                .valueOf(a.status),
+            nomeResponsavel = a.nomeResponsavel,
+            telefoneResponsavel = a.telefoneResponsavel), id)
     }
     fun excluir(id: Int) = executar({}) {
         repository.excluir(id)
@@ -72,6 +74,16 @@ class AgendamentoViewModel(
 
     fun informarErro(mensagem: String) {
         _uiState.update { it.copy(erro = mensagem) }
+    }
+
+    fun limparSelecao() {
+        _uiState.update {
+            it.copy(dataSelecionada = "", horarioSelecionado = "", erro = null)
+        }
+    }
+
+    fun limparErro() {
+        _uiState.update { it.copy(erro = null) }
     }
 
     private fun executar(

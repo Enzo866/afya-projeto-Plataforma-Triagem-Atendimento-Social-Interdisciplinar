@@ -15,7 +15,11 @@ fun AgendamentoEntity.modelo(): Agendamento = Agendamento(
         .format(Date(inicio)),
     horario = SimpleDateFormat("HH:mm", Locale.ROOT)
         .format(Date(inicio)),
-    status = StatusAgendamento.valueOf(status)
+    status = StatusAgendamento.valueOf(status),
+    telefone = telefone,
+    pacienteMenor = menorDeIdade(idade),
+    nomeResponsavel = nomeResponsavel,
+    telefoneResponsavel = telefoneResponsavel
 )
 
 fun inicioEmMillis(data: String, horario: String): Long {

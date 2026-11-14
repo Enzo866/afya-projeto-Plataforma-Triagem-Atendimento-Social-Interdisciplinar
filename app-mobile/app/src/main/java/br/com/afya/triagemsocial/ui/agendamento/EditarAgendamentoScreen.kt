@@ -1,6 +1,4 @@
 package br.com.afya.triagemsocial.ui.agendamento
-
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,47 +8,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.afya.triagemsocial.model.Agendamento
+import br.com.afya.triagemsocial.ui.components.CamposDataHora
+
 @Composable
 fun EditarAgendamentoScreen(item: Agendamento, erro: String?,
-                            ocupado: Boolean, onSalvar: (String, String) -> Unit,
-                            onVoltar: () -> Unit) {
+    ocupado: Boolean, onSalvar: (String, String) -> Unit,
+    onAlteracaoChange: (Boolean) -> Unit) {
     var data by rememberSaveable(item.id) { mutableStateOf(item.data) }
     var hora by rememberSaveable(item.id) { mutableStateOf(item.horario) }
-    var confirmarSaida by rememberSaveable { mutableStateOf(false) }
     val alterado = data != item.data || hora != item.horario
-    val voltar = {
-        if (alterado) confirmarSaida = true else onVoltar()
+    LaunchedEffect(alterado) { onAlteracaoChange(alterado) }
+    Column(Modifier.fillMaxSize().imePadding()
+        .verticalScroll(rememberScrollState()).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(item.especialidade.nomeExibicao,
+            style = MaterialTheme.typography.titleLarge)
+        CamposDataHora(data, hora, !ocupado,
+            selecionarData = { data = it },
+            selecionarHorario = { hora = it })
+        erro?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        if (ocupado) CircularProgressIndicator()
+        Button(onClick = { onSalvar(data, hora) },
+            enabled = !ocupado && alterado) { Text("Salvar alterações") }
     }
-    BackHandler { if (!ocupado) voltar() }
-    Surface(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().systemBarsPadding()
-            .verticalScroll(rememberScrollState()).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("Editar horário",
-                style = MaterialTheme.typography.headlineMedium)
-            Text(item.especialidade.nomeExibicao)
-            OutlinedTextField(data, { data = it },
-                label = { Text("Data: dd/MM/aaaa") }, singleLine = true)
-            OutlinedTextField(hora, { hora = it },
-                label = { Text("Horário: HH:mm") }, singleLine = true)
-            erro?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(onClick = { onSalvar(data, hora) }, enabled = !ocupado) {
-                Text(if (ocupado) "Salvando..." else "Salvar")
-            }
-            OutlinedButton(onClick = voltar, enabled = !ocupado) {
-                Text("Voltar")
-            }
-        }
-    }
-    if (confirmarSaida) AlertDialog(
-        onDismissRequest = { confirmarSaida = false },
-        title = { Text("Descartar alterações?") },
-        text = { Text("O horário alterado ainda não foi salvo.") },
-        confirmButton = {
-            TextButton(onClick = onVoltar) { Text("Descartar") }
-        }, dismissButton = {
-            TextButton(onClick = { confirmarSaida = false }) {
-                Text("Continuar editando")
-            }
-        })
 }

@@ -7,5 +7,9 @@ data class Agendamento(
     val especialidade: Especialidade,
     val data: String,
     val horario: String,
-    val status: StatusAgendamento
+    val status: StatusAgendamento,
+    val telefone: String,
+    val pacienteMenor: Boolean,
+    val nomeResponsavel: String?,
+    val telefoneResponsavel: String?
 )

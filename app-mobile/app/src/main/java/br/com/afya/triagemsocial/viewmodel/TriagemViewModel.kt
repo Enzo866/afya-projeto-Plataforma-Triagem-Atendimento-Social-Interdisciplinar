@@ -3,6 +3,8 @@ package br.com.afya.triagemsocial.viewmodel
 import androidx.lifecycle.ViewModel
 import br.com.afya.triagemsocial.model.Especialidade
 import br.com.afya.triagemsocial.model.TriagemUiState
+import br.com.afya.triagemsocial.model.erroDadosResponsavel
+import br.com.afya.triagemsocial.model.telefoneComDddValido
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,12 +26,10 @@ class TriagemViewModel : ViewModel() {
         }
     }
 
-    fun onIdadeChange(idade: String) {
+    fun onDataNascimentoChange(dataNascimento: String) {
         _uiState.update {
             it.copy(
-                idade = idade.filter { caractere ->
-                    caractere.isDigit()
-                },
+                dataNascimento = dataNascimento,
                 mensagemErro = null
             )
         }
@@ -44,6 +44,19 @@ class TriagemViewModel : ViewModel() {
                     }
                     .take(11),
 
+                mensagemErro = null
+            )
+        }
+    }
+
+    fun onNomeResponsavelChange(nome: String) {
+        _uiState.update { it.copy(nomeResponsavel = nome, mensagemErro = null) }
+    }
+
+    fun onTelefoneResponsavelChange(telefone: String) {
+        _uiState.update {
+            it.copy(
+                telefoneResponsavel = telefone.filter { digito -> digito in '0'..'9' }.take(11),
                 mensagemErro = null
             )
         }
@@ -96,13 +109,29 @@ class TriagemViewModel : ViewModel() {
             return false
         }
 
-        if (estadoAtual.idade.isBlank()) {
+        if (estadoAtual.dataNascimento.isBlank()) {
 
             atualizarErro(
-                "Informe a idade."
+                "Informe a data de nascimento."
             )
 
             return false
+        }
+
+        val idade = estadoAtual.idadeCalculada
+        if (idade == null) {
+            atualizarErro("Selecione uma data de nascimento válida.")
+            return false
+        }
+
+        if (idade < 18) {
+            val erro = erroDadosResponsavel(
+                estadoAtual.nomeResponsavel, estadoAtual.telefoneResponsavel
+            )
+            if (erro != null) {
+                atualizarErro(erro)
+                return false
+            }
         }
 
         if (estadoAtual.cpf.length != 11) {
@@ -115,7 +144,7 @@ class TriagemViewModel : ViewModel() {
         }
 
         if (
-            estadoAtual.telefone.length !in 10..11
+            idade >= 18 && !telefoneComDddValido(estadoAtual.telefone)
         ) {
 
             atualizarErro(

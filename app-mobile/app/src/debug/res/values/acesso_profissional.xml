@@ -1,0 +1,8 @@
+<resources>
+    <string-array name="contas_profissionais_demo" translatable="false">
+        <item>psicologia:Psico#2026:PSICOLOGIA</item>
+        <item>fisioterapia:Fisio#2026:FISIOTERAPIA</item>
+        <item>farmacia:Farma#2026:FARMACIA</item>
+        <item>direito:Direito#2026:DIREITO</item>
+    </string-array>
+</resources>
